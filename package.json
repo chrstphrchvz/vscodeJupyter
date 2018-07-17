@@ -222,6 +222,16 @@
           "default": "${workspaceRoot}",
           "title": "Startup directory for Jupyter Notebook"
         },
+        "jupyter.notebook.startupJupyterCommand": {
+          "type": "string",
+          "default": "jupyter",
+          "title": "Startup command for Jupyter Notebook"
+        },
+        "jupyter.notebook.startupSubcommand": {
+          "type": "string",
+          "default": "notebook",
+          "title": "Startup subcommand for Jupyter Notebook"
+        },
         "jupyter.notebook.startupArgs": {
           "type": "array",
           "description": "'jupyter notebook' command line arguments. Each argument is a separate item in the array. For a full list type 'jupyter notebook --help' in a terminal window.",

@@ -50,11 +50,11 @@ export class NotebookFactory extends EventEmitter {
         this.notebookOutputChannel.clear();
         this.emit('onShutdown');
     }
-    private startJupyterNotebookInTerminal(startupFolder: string, args: string[]) {
+    private startJupyterNotebookInTerminal(jupyterCommand: string, subcommand: string, startupFolder: string, args: string[]) {
         this.notebookOutputChannel.appendLine('Starting Jupyter Notebook');
-        this.notebookOutputChannel.appendLine('jupyter ' + ['notebook'].concat(args).join(' '));
+        this.notebookOutputChannel.appendLine(jupyterCommand + [subcommand].concat(args).join(' '));
 
-        return spanwPythonFile('jupyter', ['notebook'].concat(args), startupFolder)
+        return spanwPythonFile(jupyterCommand, [subcommand].concat(args), startupFolder)
             .then(proc => {
                 this.proc = proc;
                 this.proc.stderr.on('data', data => {
@@ -76,6 +76,8 @@ export class NotebookFactory extends EventEmitter {
         let jupyterSettings = workspace.getConfiguration('jupyter');
         let startupFolder = sysVars.resolve(jupyterSettings.get('notebook.startupFolder', workspace.rootPath || __dirname));
 
+        let jupyterCommand = jupyterSettings.get('notebook.startupJupyterCommand', 'jupyter');
+        let subcommand = jupyterSettings.get('notebook.startupSubcommand', 'notebook');
         let args = jupyterSettings.get('notebook.startupArgs', [] as string[]);
         args = args.map(arg => sysVars.resolve(arg));
         if (this.proc) {
@@ -100,7 +102,7 @@ export class NotebookFactory extends EventEmitter {
 
         getAvailablePort(protocol, ip, port)
             .catch(() => Promise.resolve(port))
-            .then(nextAvailablePort => this.startJupyterNotebookInTerminal(startupFolder, args).then(() => nextAvailablePort))
+            .then(nextAvailablePort => this.startJupyterNotebookInTerminal(jupyterCommand, subcommand, startupFolder, args).then(() => nextAvailablePort))
             .then(nextAvailablePort => {
                 url = `${protocol}://${ip}:${nextAvailablePort}`;
                 return tcpPortUsed.waitUntilUsed(nextAvailablePort, retryIntervalMs, timeoutMs);
